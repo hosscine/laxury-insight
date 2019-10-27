@@ -1,0 +1,34 @@
+version: '3.1'
+
+services:
+
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - 27017:27017
+    volumes:
+      - ./db:/data/db
+      - ./configdb:/data/configdb
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+
+  api:
+    image: hosscine/laxury-api:v1
+    ports:
+     - 3000:3000
+    volumes:
+      - ./wait-for-it.sh:/usr/bin/wait-for-it.sh
+    depends_on:
+     - mongo
+    command: /usr/bin/wait-for-it.sh mongo:27017 -- npm run start
